@@ -17,69 +17,74 @@ import com.techyourchance.coroutines.home.ScreenReachableFromHome
 
 class UiThreadDemoFragment : BaseFragment() {
 
-    override val screenTitle get() = ScreenReachableFromHome.UI_THREAD_DEMO.description
+	override val screenTitle get() = ScreenReachableFromHome.UI_THREAD_DEMO.description
 
-    private lateinit var btnStart: Button
-    private lateinit var txtRemainingTime: TextView
+	private lateinit var btnStart: Button
+	private lateinit var txtRemainingTime: TextView
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+	override fun onCreateView(
+		inflater: LayoutInflater,
+		container: ViewGroup?,
+		savedInstanceState: Bundle?
+	): View? {
 		logThreadInfo("onCreateView")
-        val view = inflater.inflate(R.layout.fragment_loop_iterations_demo, container, false)
+		val view = inflater.inflate(R.layout.fragment_loop_iterations_demo, container, false)
 
-        txtRemainingTime = view.findViewById(R.id.txt_remaining_time)
+		txtRemainingTime = view.findViewById(R.id.txt_remaining_time)
 
-        btnStart = view.findViewById(R.id.btn_start)
-        btnStart.setOnClickListener {
-            logThreadInfo("button callback")
-            btnStart.isEnabled = false
-            executeBenchmark()
-            btnStart.isEnabled = true
-        }
+		btnStart = view.findViewById(R.id.btn_start)
+		btnStart.setOnClickListener {
+			logThreadInfo("button callback")
+			btnStart.isEnabled = false
+			executeBenchmark()
+			btnStart.isEnabled = true
+		}
 
-        return view
-    }
+		return view
+	}
 
-    private fun executeBenchmark() {
+	private fun executeBenchmark() {
 		logThreadInfo("executeBenchmark()")
-        val benchmarkDurationSeconds = 5
+		val benchmarkDurationSeconds = 5
 
-        updateRemainingTime(benchmarkDurationSeconds)
+		updateRemainingTime(benchmarkDurationSeconds)
 
-        logThreadInfo("benchmark started")
+		logThreadInfo("benchmark started")
 
-        val stopTimeNano = System.nanoTime() + benchmarkDurationSeconds * 1_000_000_000L
+		val stopTimeNano = System.nanoTime() + benchmarkDurationSeconds * 1_000_000_000L
 
-        var iterationsCount: Long = 0
-        while (System.nanoTime() < stopTimeNano) {
-            iterationsCount++
-        }
+		var iterationsCount: Long = 0
+		while (System.nanoTime() < stopTimeNano) {
+			iterationsCount++
+		}
 
-        logThreadInfo("benchmark completed")
+		logThreadInfo("benchmark completed")
 
-        Toast.makeText(requireContext(), "$iterationsCount", Toast.LENGTH_SHORT).show()
-    }
+		Toast.makeText(requireContext(), "Iterations Count: $iterationsCount", Toast.LENGTH_SHORT)
+			.show()
+	}
 
-    private fun updateRemainingTime(remainingTimeSeconds: Int) {
-        logThreadInfo("updateRemainingTime: $remainingTimeSeconds seconds")
+	private fun updateRemainingTime(remainingTimeSeconds: Int) {
+		logThreadInfo("updateRemainingTime: $remainingTimeSeconds seconds")
 
-        if (remainingTimeSeconds > 0) {
-            txtRemainingTime.text = "$remainingTimeSeconds seconds remaining"
-            Handler(Looper.getMainLooper()).postDelayed({
-                updateRemainingTime(remainingTimeSeconds - 1)
-            }, 1000)
-        } else {
-            txtRemainingTime.text = "done!"
-        }
+		if (remainingTimeSeconds > 0) {
+			txtRemainingTime.text = "$remainingTimeSeconds seconds remaining"
+			Handler(Looper.getMainLooper()).postDelayed({
+				updateRemainingTime(remainingTimeSeconds - 1)
+			}, 1000)
+		} else {
+			txtRemainingTime.text = "done!"
+		}
 
-    }
+	}
 
-    private fun logThreadInfo(message: String) {
-        ThreadInfoLogger.logThreadInfo(message)
-    }
+	private fun logThreadInfo(message: String) {
+		ThreadInfoLogger.logThreadInfo(message)
+	}
 
-    companion object {
-        fun newInstance(): Fragment {
-            return UiThreadDemoFragment()
-        }
-    }
+	companion object {
+		fun newInstance(): Fragment {
+			return UiThreadDemoFragment()
+		}
+	}
 }
