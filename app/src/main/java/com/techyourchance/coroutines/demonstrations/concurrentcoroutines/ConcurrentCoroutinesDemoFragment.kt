@@ -96,6 +96,7 @@ class ConcurrentCoroutinesDemoFragment : BaseFragment() {
 				logThreadInfo("updateRemainingTime: $time seconds")
 				txtRemainingTime.text = "$time seconds remaining"
 				delay(1000)
+
 			} else {
 				txtRemainingTime.text = "done!"
 			}

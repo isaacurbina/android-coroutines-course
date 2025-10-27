@@ -12,91 +12,101 @@ import com.techyourchance.coroutines.R
 import com.techyourchance.coroutines.common.BaseFragment
 import com.techyourchance.coroutines.common.ThreadInfoLogger
 import com.techyourchance.coroutines.home.ScreenReachableFromHome
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ScopeChildrenCancellationDemoFragment : BaseFragment() {
 
-    private val coroutineScope = CoroutineScope(Dispatchers.Main.immediate)
+	private val coroutineScope = CoroutineScope(Dispatchers.Main.immediate)
 
-    override val screenTitle get() = ScreenReachableFromHome.SCOPE_CHILDREN_CANCELLATION_DEMO.description
+	override val screenTitle get() = ScreenReachableFromHome.SCOPE_CHILDREN_CANCELLATION_DEMO.description
 
-    private lateinit var btnStart: Button
-    private lateinit var txtRemainingTime: TextView
+	private lateinit var btnStart: Button
+	private lateinit var txtRemainingTime: TextView
 
-    private var hasBenchmarkBeenStartedOnce = false
+	private var hasBenchmarkBeenStartedOnce = false
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_loop_iterations_demo, container, false)
+	override fun onCreateView(
+		inflater: LayoutInflater,
+		container: ViewGroup?,
+		savedInstanceState: Bundle?
+	): View? {
+		val view = inflater.inflate(R.layout.fragment_loop_iterations_demo, container, false)
 
-        txtRemainingTime = view.findViewById(R.id.txt_remaining_time)
+		txtRemainingTime = view.findViewById(R.id.txt_remaining_time)
 
-        btnStart = view.findViewById(R.id.btn_start)
-        btnStart.setOnClickListener {
-            logThreadInfo("button callback")
+		btnStart = view.findViewById(R.id.btn_start)
+		btnStart.setOnClickListener {
+			logThreadInfo("button callback")
 
-            val benchmarkDurationSeconds = 5
+			val benchmarkDurationSeconds = 5
 
-            coroutineScope.launch {
-                updateRemainingTime(benchmarkDurationSeconds)
-            }
+			coroutineScope.launch {
+				updateRemainingTime(benchmarkDurationSeconds)
+			}
 
-            coroutineScope.launch {
-                btnStart.isEnabled = false
-                val iterationsCount = executeBenchmark(benchmarkDurationSeconds)
-                Toast.makeText(requireContext(), "$iterationsCount", Toast.LENGTH_SHORT).show()
-                btnStart.isEnabled = true
-            }
+			coroutineScope.launch {
+				btnStart.isEnabled = false
+				val iterationsCount = executeBenchmark(benchmarkDurationSeconds)
+				Toast.makeText(requireContext(), "$iterationsCount", Toast.LENGTH_SHORT).show()
+				btnStart.isEnabled = true
+			}
 
-            hasBenchmarkBeenStartedOnce = true
-        }
+			hasBenchmarkBeenStartedOnce = true
+		}
 
-        return view
-    }
+		return view
+	}
 
-    override fun onStop() {
-        logThreadInfo("onStop()")
-        super.onStop()
-        coroutineScope.coroutineContext.cancelChildren()
-        if (hasBenchmarkBeenStartedOnce) {
-            btnStart.isEnabled = true
-            txtRemainingTime.text = "done!"
-        }
-    }
+	override fun onStop() {
+		logThreadInfo("onStop()")
+		super.onStop()
+		coroutineScope.coroutineContext.cancelChildren()
+		if (hasBenchmarkBeenStartedOnce) {
+			btnStart.isEnabled = true
+			txtRemainingTime.text = "done!"
+		}
+	}
 
-    private suspend fun executeBenchmark(benchmarkDurationSeconds: Int) = withContext(Dispatchers.Default) {
-        logThreadInfo("benchmark started")
+	private suspend fun executeBenchmark(benchmarkDurationSeconds: Int) =
+		withContext(Dispatchers.Default) {
+			logThreadInfo("benchmark started")
 
-        val stopTimeNano = System.nanoTime() + benchmarkDurationSeconds * 1_000_000_000L
+			val stopTimeNano = System.nanoTime() + benchmarkDurationSeconds * 1_000_000_000L
 
-        var iterationsCount: Long = 0
-        while (System.nanoTime() < stopTimeNano) {
-            iterationsCount++
-        }
+			var iterationsCount: Long = 0
+			while (System.nanoTime() < stopTimeNano) {
+				iterationsCount++
+			}
 
-        logThreadInfo("benchmark completed")
+			logThreadInfo("benchmark completed")
 
-        iterationsCount
-    }
+			iterationsCount
+		}
 
-    private suspend fun updateRemainingTime(remainingTimeSeconds: Int) {
-        for (time in remainingTimeSeconds downTo 0) {
-            if (time > 0) {
-                logThreadInfo("updateRemainingTime: $time seconds")
-                txtRemainingTime.text = "$time seconds remaining"
-                delay(1000)
-            } else {
-                txtRemainingTime.text = "done!"
-            }
-        }
-    }
+	private suspend fun updateRemainingTime(remainingTimeSeconds: Int) {
+		for (time in remainingTimeSeconds downTo 0) {
+			if (time > 0) {
+				logThreadInfo("updateRemainingTime: $time seconds")
+				txtRemainingTime.text = "$time seconds remaining"
+				delay(1000)
+			} else {
+				txtRemainingTime.text = "done!"
+			}
+		}
+	}
 
-    private fun logThreadInfo(message: String) {
-        ThreadInfoLogger.logThreadInfo(message)
-    }
+	private fun logThreadInfo(message: String) {
+		ThreadInfoLogger.logThreadInfo(message)
+	}
 
-    companion object {
-        fun newInstance(): Fragment {
-            return ScopeChildrenCancellationDemoFragment()
-        }
-    }
+	companion object {
+		fun newInstance(): Fragment {
+			return ScopeChildrenCancellationDemoFragment()
+		}
+	}
 }
