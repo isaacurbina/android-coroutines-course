@@ -5,11 +5,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.techyourchance.coroutines.common.ThreadInfoLogger
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.cancelChildren
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 class MyViewModel : ViewModel() {
@@ -52,12 +49,4 @@ class MyViewModel : ViewModel() {
 	private fun logThreadInfo(message: String) {
 		ThreadInfoLogger.logThreadInfo(message)
 	}
-
-	override fun onCleared() {
-		if (viewModelScope.isActive) {
-			viewModelScope.cancel()
-		}
-		super.onCleared()
-	}
-
 }
