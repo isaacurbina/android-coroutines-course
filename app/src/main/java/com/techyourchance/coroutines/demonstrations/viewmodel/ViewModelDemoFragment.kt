@@ -16,52 +16,60 @@ import com.techyourchance.coroutines.home.ScreenReachableFromHome
 
 class ViewModelDemoFragment : BaseFragment() {
 
-    override val screenTitle get() = ScreenReachableFromHome.VIEWMODEL_DEMO.description
+	override val screenTitle get() = ScreenReachableFromHome.VIEWMODEL_DEMO.description
 
-    private lateinit var btnTrackTime: Button
-    private lateinit var txtElapsedTime: TextView
+	private lateinit var btnTrackTime: Button
+	private lateinit var txtElapsedTime: TextView
 
-    private lateinit var myViewModel: MyViewModel
+	private lateinit var myViewModel: MyViewModel
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        myViewModel = ViewModelProvider(this, MyViewModelFactory()).get(MyViewModel::class.java)
-    }
+	override fun onCreate(savedInstanceState: Bundle?) {
+		super.onCreate(savedInstanceState)
+		myViewModel = ViewModelProvider(this, MyViewModelFactory()).get(MyViewModel::class.java)
+	}
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_viewmodel_demo, container, false)
+	override fun onCreateView(
+		inflater: LayoutInflater,
+		container: ViewGroup?,
+		savedInstanceState: Bundle?
+	): View? {
+		val view = inflater.inflate(R.layout.fragment_viewmodel_demo, container, false)
 
-        txtElapsedTime = view.findViewById(R.id.txt_elapsed_time)
-        btnTrackTime = view.findViewById(R.id.btn_track_time)
+		txtElapsedTime = view.findViewById(R.id.txt_elapsed_time)
+		btnTrackTime = view.findViewById(R.id.btn_track_time)
 
-        btnTrackTime.setOnClickListener {
-            logThreadInfo("button callback")
-            myViewModel.toggleTrackElapsedTime()
-        }
+		btnTrackTime.setOnClickListener {
+			logThreadInfo("button callback")
+			myViewModel.toggleTrackElapsedTime()
+		}
 
-        myViewModel.elapsedTime.observe(viewLifecycleOwner, Observer { elapsedTime ->
-            txtElapsedTime.text = elapsedTime.toString()
-        })
+		myViewModel.elapsedTime.observe(viewLifecycleOwner, Observer { elapsedTime ->
+			txtElapsedTime.text = elapsedTime.toString()
+		})
 
-        myViewModel.isTrackingTime.observe(viewLifecycleOwner, Observer { isTrackingTime ->
-            btnTrackTime.text = if (isTrackingTime) { "Stop tracking" } else { "Start tracking" }
-        })
+		myViewModel.isTrackingTime.observe(viewLifecycleOwner, Observer { isTrackingTime ->
+			btnTrackTime.text = if (isTrackingTime) {
+				"Stop tracking"
+			} else {
+				"Start tracking"
+			}
+		})
 
-        return view
-    }
+		return view
+	}
 
-    override fun onStop() {
-        logThreadInfo("onStop()")
-        super.onStop()
-    }
+	override fun onStop() {
+		logThreadInfo("onStop()")
+		super.onStop()
+	}
 
-    private fun logThreadInfo(message: String) {
-        ThreadInfoLogger.logThreadInfo(message)
-    }
+	private fun logThreadInfo(message: String) {
+		ThreadInfoLogger.logThreadInfo(message)
+	}
 
-    companion object {
-        fun newInstance(): Fragment {
-            return ViewModelDemoFragment()
-        }
-    }
+	companion object {
+		fun newInstance(): Fragment {
+			return ViewModelDemoFragment()
+		}
+	}
 }
