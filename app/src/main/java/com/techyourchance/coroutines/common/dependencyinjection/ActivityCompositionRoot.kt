@@ -14,74 +14,100 @@ import com.techyourchance.coroutines.demonstrations.noncancellable.PremiumCustom
 import com.techyourchance.coroutines.demonstrations.uncaughtexception.LoginEndpointUncaughtException
 import com.techyourchance.coroutines.demonstrations.uncaughtexception.LoginUseCaseUncaughtException
 import com.techyourchance.coroutines.demonstrations.uncaughtexception.UserStateManager
-import com.techyourchance.coroutines.exercises.exercise8.FetchAndCacheUsersUseCase
-import com.techyourchance.coroutines.exercises.exercise8.GetUserEndpoint
-import com.techyourchance.coroutines.exercises.exercise8.UsersDao
 import com.techyourchance.coroutines.exercises.exercise1.GetReputationEndpoint
 import com.techyourchance.coroutines.exercises.exercise4.FactorialUseCase
 import com.techyourchance.coroutines.exercises.exercise6.Exercise6BenchmarkUseCase
 import com.techyourchance.coroutines.exercises.exercise6.PostBenchmarkResultsEndpoint
+import com.techyourchance.coroutines.exercises.exercise8.FetchAndCacheUsersUseCase
+import com.techyourchance.coroutines.exercises.exercise8.GetUserEndpoint
+import com.techyourchance.coroutines.exercises.exercise8.UsersDao
 import com.techyourchance.coroutines.exercises.exercise9.FetchAndCacheUsersUseCaseExercise9
+import com.techyourchance.coroutines.solutions.exercise4.FactorialUseCaseSolution
 import com.techyourchance.coroutines.solutions.exercise5.GetReputationUseCase
 import com.techyourchance.coroutines.solutions.exercise6.Exercise6SolutionBenchmarkUseCase
 import com.techyourchance.coroutines.solutions.exercise8.Exercise8SolutionFetchAndCacheUsersUseCase
 import com.techyourchance.coroutines.solutions.exercise9.FetchAndCacheUsersUseCaseSolutionExercise9
 
 class ActivityCompositionRoot(
-        private val activity: FragmentActivity,
-        private val appCompositionRoot: ApplicationCompositionRoot
+	private val activity: FragmentActivity,
+	private val appCompositionRoot: ApplicationCompositionRoot
 ) {
 
-    val toolbarManipulator get() = activity as ToolbarDelegate
+	val toolbarManipulator get() = activity as ToolbarDelegate
 
-    val screensNavigator: ScreensNavigator by lazy {
-        ScreensNavigator(fragNavController)
-    }
+	val screensNavigator: ScreensNavigator by lazy {
+		ScreensNavigator(fragNavController)
+	}
 
-    private val fragNavController get() = FragNavController(fragmentManager, R.id.frame_content)
+	private val fragNavController get() = FragNavController(fragmentManager, R.id.frame_content)
 
-    private val fragmentManager get() = activity.supportFragmentManager
+	private val fragmentManager get() = activity.supportFragmentManager
 
-    private val postBenchmarkResultsEndpoint get() = PostBenchmarkResultsEndpoint()
+	private val postBenchmarkResultsEndpoint get() = PostBenchmarkResultsEndpoint()
 
-    private val premiumCustomersEndpoint get() = PremiumCustomersEndpoint()
+	private val premiumCustomersEndpoint get() = PremiumCustomersEndpoint()
 
-    private val customersDao get() = CustomersDao()
+	private val customersDao get() = CustomersDao()
 
-    private val getUserEndpoint get() = GetUserEndpoint()
+	private val getUserEndpoint get() = GetUserEndpoint()
 
-    private val usersDao get() = UsersDao()
+	private val usersDao get() = UsersDao()
 
-    private val loginEndpointUncaughtException get() = LoginEndpointUncaughtException()
+	private val loginEndpointUncaughtException get() = LoginEndpointUncaughtException()
 
-    private val userStateManager get() = UserStateManager()
+	private val userStateManager get() = UserStateManager()
 
-    val getReputationEndpoint get() = GetReputationEndpoint()
+	val getReputationEndpoint get() = GetReputationEndpoint()
 
-    val factorialUseCase get() = FactorialUseCase()
+	val factorialUseCase get() = FactorialUseCase()
 
-    val benchmarkUseCase get() = BenchmarkUseCase()
+	val factorialUseCaseSolution get() = FactorialUseCaseSolution()
 
-    val cancellableBenchmarkUseCase get() = CancellableBenchmarkUseCase()
+	val benchmarkUseCase get() = BenchmarkUseCase()
 
-    val blockingBenchmarkUseCase get() = BlockingBenchmarkUseCase()
+	val cancellableBenchmarkUseCase get() = CancellableBenchmarkUseCase()
 
-    val exercise6BenchmarkUseCase get() = Exercise6BenchmarkUseCase(postBenchmarkResultsEndpoint)
+	val blockingBenchmarkUseCase get() = BlockingBenchmarkUseCase()
 
-    val exercise6SolutionBenchmarkUseCase get() = Exercise6SolutionBenchmarkUseCase(postBenchmarkResultsEndpoint)
+	val exercise6BenchmarkUseCase get() = Exercise6BenchmarkUseCase(postBenchmarkResultsEndpoint)
 
-    val getReputationUseCase get() = GetReputationUseCase(getReputationEndpoint)
+	val exercise6SolutionBenchmarkUseCase
+		get() = Exercise6SolutionBenchmarkUseCase(
+			postBenchmarkResultsEndpoint
+		)
 
-    val makeCustomerPremiumUseCase get() = MakeCustomerPremiumUseCase(premiumCustomersEndpoint, customersDao)
+	val getReputationUseCase get() = GetReputationUseCase(getReputationEndpoint)
 
-    val fetchAndCacheUserUseCase get() = FetchAndCacheUsersUseCase(getUserEndpoint, usersDao)
+	val makeCustomerPremiumUseCase
+		get() = MakeCustomerPremiumUseCase(
+			premiumCustomersEndpoint,
+			customersDao
+		)
 
-    val exercise8SolutionFetchAndCacheUserUseCase get() = Exercise8SolutionFetchAndCacheUsersUseCase(getUserEndpoint, usersDao)
+	val fetchAndCacheUserUseCase get() = FetchAndCacheUsersUseCase(getUserEndpoint, usersDao)
 
-    val fetchAndCacheUserUseCaseExercise9 get() = FetchAndCacheUsersUseCaseExercise9(getUserEndpoint, usersDao)
+	val exercise8SolutionFetchAndCacheUserUseCase
+		get() = Exercise8SolutionFetchAndCacheUsersUseCase(
+			getUserEndpoint,
+			usersDao
+		)
 
-    val fetchAndCacheUserUseCaseSolutionExercise9 get() = FetchAndCacheUsersUseCaseSolutionExercise9(getUserEndpoint, usersDao)
+	val fetchAndCacheUserUseCaseExercise9
+		get() = FetchAndCacheUsersUseCaseExercise9(
+			getUserEndpoint,
+			usersDao
+		)
 
-    val loginUseCaseUncaughtException get() = LoginUseCaseUncaughtException(loginEndpointUncaughtException, userStateManager)
+	val fetchAndCacheUserUseCaseSolutionExercise9
+		get() = FetchAndCacheUsersUseCaseSolutionExercise9(
+			getUserEndpoint,
+			usersDao
+		)
+
+	val loginUseCaseUncaughtException
+		get() = LoginUseCaseUncaughtException(
+			loginEndpointUncaughtException,
+			userStateManager
+		)
 
 }
