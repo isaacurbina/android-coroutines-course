@@ -30,6 +30,7 @@ import com.techyourchance.coroutines.solutions.exercise1.Exercise1SolutionFragme
 import com.techyourchance.coroutines.solutions.exercise2.Exercise2SolutionFragment
 import com.techyourchance.coroutines.solutions.exercise3.Exercise3SolutionFragment
 import com.techyourchance.coroutines.solutions.exercise4.Exercise4SolutionFragment
+import com.techyourchance.coroutines.solutions.exercise5.Exercise5SolutionFragment
 
 class ScreensNavigator(private val fragNavController: FragNavController) {
 
@@ -137,6 +138,10 @@ class ScreensNavigator(private val fragNavController: FragNavController) {
 
 	fun toExercise5() {
 		fragNavController.pushFragment(Exercise5Fragment.newInstance())
+	}
+
+	fun toExercise5Solution() {
+		fragNavController.pushFragment(Exercise5SolutionFragment.newInstance())
 	}
 
 	fun toCoroutinesCancellationCooperativeDemo() {

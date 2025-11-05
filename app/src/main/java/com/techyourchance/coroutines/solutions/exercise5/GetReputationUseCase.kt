@@ -7,11 +7,10 @@ import kotlinx.coroutines.withContext
 
 class GetReputationUseCase(private val getReputationEndpoint: GetReputationEndpoint) {
 
-    suspend fun getReputationForUser(userId: String): Int {
-        return withContext(Dispatchers.Default) {
-            logThreadInfo("getReputationForUser()")
-            getReputationEndpoint.getReputation(userId)
-        }
-    }
-
+	suspend fun getReputationForUser(userId: String): Int {
+		return withContext(Dispatchers.Default) {
+			logThreadInfo("getReputationForUser()")
+			getReputationEndpoint.getReputation(userId)
+		}
+	}
 }
