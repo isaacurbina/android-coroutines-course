@@ -12,80 +12,88 @@ import com.techyourchance.coroutines.R
 import com.techyourchance.coroutines.common.BaseFragment
 import com.techyourchance.coroutines.common.ThreadInfoLogger.logThreadInfo
 import com.techyourchance.coroutines.home.ScreenReachableFromHome
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class Exercise6Fragment : BaseFragment() {
 
-    private val coroutineScope = CoroutineScope(Dispatchers.Main.immediate)
+	private val coroutineScope = CoroutineScope(Dispatchers.Main.immediate)
 
-    override val screenTitle get() = ScreenReachableFromHome.EXERCISE_6.description
+	override val screenTitle get() = ScreenReachableFromHome.EXERCISE_6.description
 
-    private lateinit var benchmarkUseCase: Exercise6BenchmarkUseCase
+	private lateinit var benchmarkUseCase: Exercise6BenchmarkUseCase
 
-    private lateinit var btnStart: Button
-    private lateinit var txtRemainingTime: TextView
+	private lateinit var btnStart: Button
+	private lateinit var txtRemainingTime: TextView
 
-    private var hasBenchmarkBeenStartedOnce = false
+	private var hasBenchmarkBeenStartedOnce = false
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        benchmarkUseCase = compositionRoot.exercise6BenchmarkUseCase
-    }
+	override fun onCreate(savedInstanceState: Bundle?) {
+		super.onCreate(savedInstanceState)
+		benchmarkUseCase = compositionRoot.exercise6BenchmarkUseCase
+	}
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_exercise_6, container, false)
+	override fun onCreateView(
+		inflater: LayoutInflater,
+		container: ViewGroup?,
+		savedInstanceState: Bundle?
+	): View? {
+		val view = inflater.inflate(R.layout.fragment_exercise_6, container, false)
 
-        txtRemainingTime = view.findViewById(R.id.txt_remaining_time)
+		txtRemainingTime = view.findViewById(R.id.txt_remaining_time)
 
-        btnStart = view.findViewById(R.id.btn_start)
-        btnStart.setOnClickListener {
-            logThreadInfo("button callback")
+		btnStart = view.findViewById(R.id.btn_start)
+		btnStart.setOnClickListener {
+			logThreadInfo("button callback")
 
-            val benchmarkDurationSeconds = 5
+			val benchmarkDurationSeconds = 5
 
-            coroutineScope.launch {
-                updateRemainingTime(benchmarkDurationSeconds)
-            }
+			coroutineScope.launch {
+				updateRemainingTime(benchmarkDurationSeconds)
+			}
 
-            coroutineScope.launch {
-                btnStart.isEnabled = false
-                val iterationsCount = benchmarkUseCase.executeBenchmark(benchmarkDurationSeconds)
-                Toast.makeText(requireContext(), "$iterationsCount", Toast.LENGTH_SHORT).show()
-                btnStart.isEnabled = true
-            }
+			coroutineScope.launch {
+				btnStart.isEnabled = false
+				val iterationsCount = benchmarkUseCase.executeBenchmark(benchmarkDurationSeconds)
+				Toast.makeText(requireContext(), "$iterationsCount", Toast.LENGTH_SHORT).show()
+				btnStart.isEnabled = true
+			}
 
-            hasBenchmarkBeenStartedOnce = true
-        }
+			hasBenchmarkBeenStartedOnce = true
+		}
 
-        return view
-    }
+		return view
+	}
 
-    override fun onStop() {
-        logThreadInfo("onStop()")
-        super.onStop()
-        coroutineScope.coroutineContext.cancelChildren()
-        if (hasBenchmarkBeenStartedOnce) {
-            btnStart.isEnabled = true
-            txtRemainingTime.text = "done!"
-        }
-    }
+	override fun onStop() {
+		logThreadInfo("onStop()")
+		super.onStop()
+		coroutineScope.coroutineContext.cancelChildren()
+		if (hasBenchmarkBeenStartedOnce) {
+			btnStart.isEnabled = true
+			txtRemainingTime.text = "done!"
+		}
+	}
 
 
-    private suspend fun updateRemainingTime(remainingTimeSeconds: Int) {
-        for (time in remainingTimeSeconds downTo 0) {
-            if (time > 0) {
-                logThreadInfo("updateRemainingTime: $time seconds")
-                txtRemainingTime.text = "$time seconds remaining"
-                delay(1000)
-            } else {
-                txtRemainingTime.text = "done!"
-            }
-        }
-    }
+	private suspend fun updateRemainingTime(remainingTimeSeconds: Int) {
+		for (time in remainingTimeSeconds downTo 0) {
+			if (time > 0) {
+				logThreadInfo("updateRemainingTime: $time seconds")
+				txtRemainingTime.text = "$time seconds remaining"
+				delay(1000)
+			} else {
+				txtRemainingTime.text = "done!"
+			}
+		}
+	}
 
-    companion object {
-        fun newInstance(): Fragment {
-            return Exercise6Fragment()
-        }
-    }
+	companion object {
+		fun newInstance(): Fragment {
+			return Exercise6Fragment()
+		}
+	}
 }
