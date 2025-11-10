@@ -8,6 +8,7 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import com.techyourchance.coroutines.R
 import com.techyourchance.coroutines.common.BaseFragment
 import com.techyourchance.coroutines.common.ThreadInfoLogger.logThreadInfo
@@ -61,11 +62,14 @@ class CoroutinesCancellationCooperativeDemoFragment : BaseFragment() {
 						benchmarkUseCase.executeBenchmark(benchmarkDurationSeconds)
 					Toast.makeText(requireContext(), "$iterationsCount", Toast.LENGTH_SHORT).show()
 					btnStart.isEnabled = true
+
 				} catch (e: CancellationException) {
 					btnStart.isEnabled = true
 					txtRemainingTime.text = "done!"
 					logThreadInfo("coroutine cancelled: ${e.localizedMessage}")
-					Toast.makeText(requireContext(), "cancelled", Toast.LENGTH_SHORT).show()
+					if (lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {
+						Toast.makeText(requireContext(), "cancelled", Toast.LENGTH_SHORT).show()
+					}
 				}
 			}
 		}
