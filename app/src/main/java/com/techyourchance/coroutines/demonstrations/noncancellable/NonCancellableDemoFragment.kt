@@ -14,82 +14,93 @@ import com.techyourchance.coroutines.R
 import com.techyourchance.coroutines.common.BaseFragment
 import com.techyourchance.coroutines.common.ThreadInfoLogger.logThreadInfo
 import com.techyourchance.coroutines.home.ScreenReachableFromHome
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.launch
 
 class NonCancellableDemoFragment : BaseFragment() {
 
-    private val coroutineScope = CoroutineScope(Dispatchers.Main.immediate)
+	private val coroutineScope = CoroutineScope(Dispatchers.Main.immediate)
 
-    override val screenTitle get() = ScreenReachableFromHome.EXERCISE_6.description
+	override val screenTitle get() = ScreenReachableFromHome.EXERCISE_6.description
 
-    private lateinit var makeCustomerPremiumUseCase: MakeCustomerPremiumUseCase
+	private lateinit var makeCustomerPremiumUseCase: MakeCustomerPremiumUseCase
 
-    private lateinit var edtCustomerId: EditText
-    private lateinit var btnMakePremium: Button
+	private lateinit var edtCustomerId: EditText
+	private lateinit var btnMakePremium: Button
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        makeCustomerPremiumUseCase = compositionRoot.makeCustomerPremiumUseCase
-    }
+	override fun onCreate(savedInstanceState: Bundle?) {
+		super.onCreate(savedInstanceState)
+		makeCustomerPremiumUseCase = compositionRoot.makeCustomerPremiumUseCase
+	}
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_premium_customer, container, false)
+	override fun onCreateView(
+		inflater: LayoutInflater,
+		container: ViewGroup?,
+		savedInstanceState: Bundle?
+	): View? {
+		val view = inflater.inflate(R.layout.fragment_premium_customer, container, false)
 
-        view.apply {
-            edtCustomerId = findViewById(R.id.edt_customer_id)
-            btnMakePremium = findViewById(R.id.btn_make_premium)
-        }
+		view.apply {
+			edtCustomerId = findViewById(R.id.edt_customer_id)
+			btnMakePremium = findViewById(R.id.btn_make_premium)
+		}
 
-        edtCustomerId.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {            }
+		edtCustomerId.addTextChangedListener(object : TextWatcher {
+			override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                btnMakePremium.isEnabled = !s.isNullOrEmpty()
-            }
+			override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+				btnMakePremium.isEnabled = !s.isNullOrEmpty()
+			}
 
-            override fun afterTextChanged(s: Editable?) {}
-        })
+			override fun afterTextChanged(s: Editable?) {}
+		})
 
-        btnMakePremium.setOnClickListener {
-            logThreadInfo("button callback")
+		btnMakePremium.setOnClickListener {
+			logThreadInfo("button callback")
 
-            val benchmarkDurationSeconds = 5
+			val benchmarkDurationSeconds = 5
 
-            coroutineScope.launch {
-                try {
-                    disableUserInput()
-                    makeCustomerPremiumUseCase.makeCustomerPremium(edtCustomerId.text.toString())
-                    enableUserInput()
-                    Toast.makeText(requireContext(), "the user became premium", Toast.LENGTH_SHORT).show()
-                } catch (e: CancellationException) {
-                    enableUserInput()
-                    logThreadInfo("flow cancelled")
-                }
-            }
-        }
+			coroutineScope.launch {
+				try {
+					disableUserInput()
+					makeCustomerPremiumUseCase.makeCustomerPremium(edtCustomerId.text.toString())
+					enableUserInput()
+					Toast.makeText(requireContext(), "the user became premium", Toast.LENGTH_SHORT)
+						.show()
+					logThreadInfo("benchmark completed")
 
-        return view
-    }
+				} catch (e: CancellationException) {
+					enableUserInput()
+					logThreadInfo("flow cancelled: ${e.localizedMessage}")
+				}
+			}
+		}
 
-    private fun enableUserInput() {
-        edtCustomerId.isEnabled = true
-        btnMakePremium.isEnabled = true
-    }
+		return view
+	}
 
-    private fun disableUserInput() {
-        edtCustomerId.isEnabled = false
-        btnMakePremium.isEnabled = false
-    }
+	private fun enableUserInput() {
+		edtCustomerId.isEnabled = true
+		btnMakePremium.isEnabled = true
+	}
 
-    override fun onStop() {
-        logThreadInfo("onStop()")
-        super.onStop()
-        coroutineScope.coroutineContext.cancelChildren()
-    }
+	private fun disableUserInput() {
+		edtCustomerId.isEnabled = false
+		btnMakePremium.isEnabled = false
+	}
 
-    companion object {
-        fun newInstance(): Fragment {
-            return NonCancellableDemoFragment()
-        }
-    }
+	override fun onStop() {
+		logThreadInfo("onStop()")
+		super.onStop()
+		coroutineScope.coroutineContext.cancelChildren()
+	}
+
+	companion object {
+		fun newInstance(): Fragment {
+			return NonCancellableDemoFragment()
+		}
+	}
 }
