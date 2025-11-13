@@ -108,12 +108,12 @@ class CoroutinesMechanicsExplorationsTest {
 							delay(100)
 							println("withContext done")
 						} catch (e: CancellationException) {
-							println("withContext cancelled")
+							println("withContext cancelled: ${e.localizedMessage}")
 						}
 					}
 					println("coroutine done")
 				} catch (e: CancellationException) {
-					println("coroutine cancelled")
+					println("coroutine cancelled: ${e.localizedMessage}")
 				}
 			}
 			scope.launch(CoroutineName("my additional coroutine")) {
@@ -140,12 +140,12 @@ class CoroutinesMechanicsExplorationsTest {
 							delay(100)
 							println("withContext done")
 						} catch (e: CancellationException) {
-							println("withContext cancelled")
+							println("withContext cancelled: ${e.localizedMessage}")
 						}
 					}
 					println("coroutine done")
 				} catch (e: CancellationException) {
-					println("coroutine cancelled")
+					println("coroutine cancelled: ${e.localizedMessage}")
 				}
 			}
 			scope.launch(CoroutineName("my additional coroutine")) {
@@ -156,6 +156,4 @@ class CoroutinesMechanicsExplorationsTest {
 			println("test done")
 		}
 	}
-
-
 }
