@@ -26,6 +26,7 @@ enum class ScreenReachableFromHome(val description: String) {
 	EXERCISE_6_SOLUTION("Exercise 6 Solution"),
 	NON_CANCELLABLE_DEMO("Non-Cancellable"),
 	EXERCISE_8("Exercise 8"),
+	EXERCISE_8_SOLUTION("Exercise 8 Solution"),
 	EXERCISE_9("Exercise 9"),
 	UNCAUGHT_EXCEPTION_DEMO("Uncaught Exception"),
 	EXERCISE_10("Exercise 10"),

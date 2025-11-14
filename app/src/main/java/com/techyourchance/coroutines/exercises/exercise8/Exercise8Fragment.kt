@@ -78,8 +78,8 @@ class Exercise8Fragment : BaseFragment() {
 
 	override fun onStop() {
 		logThreadInfo("onStop()")
-		super.onStop()
 		coroutineScope.coroutineContext.cancelChildren()
+		super.onStop()
 	}
 
 
