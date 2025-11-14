@@ -11,78 +11,91 @@ import com.techyourchance.coroutines.R
 import com.techyourchance.coroutines.common.BaseFragment
 import com.techyourchance.coroutines.common.ThreadInfoLogger.logThreadInfo
 import com.techyourchance.coroutines.home.ScreenReachableFromHome
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class Exercise8Fragment : BaseFragment() {
 
-    private val coroutineScope = CoroutineScope(Dispatchers.Main.immediate)
+	private val coroutineScope = CoroutineScope(Dispatchers.Main.immediate)
 
-    override val screenTitle get() = ScreenReachableFromHome.EXERCISE_8.description
+	override val screenTitle get() = ScreenReachableFromHome.EXERCISE_8.description
 
-    private lateinit var fetchAndCacheUsersUseCase: FetchAndCacheUsersUseCase
+	private lateinit var fetchAndCacheUsersUseCase: FetchAndCacheUsersUseCase
 
-    private lateinit var btnFetch: Button
-    private lateinit var txtElapsedTime: TextView
+	private lateinit var btnFetch: Button
+	private lateinit var txtElapsedTime: TextView
 
-    private val userIds = listOf<String>("bmq81", "gfn12", "gla34")
+	private val userIds = listOf("bmq81", "gfn12", "gla34")
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        fetchAndCacheUsersUseCase = compositionRoot.fetchAndCacheUserUseCase
-    }
+	override fun onCreate(savedInstanceState: Bundle?) {
+		super.onCreate(savedInstanceState)
+		fetchAndCacheUsersUseCase = compositionRoot.fetchAndCacheUserUseCase
+	}
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_exercise_8, container, false)
+	override fun onCreateView(
+		inflater: LayoutInflater,
+		container: ViewGroup?,
+		savedInstanceState: Bundle?
+	): View? {
+		val view = inflater.inflate(R.layout.fragment_exercise_8, container, false)
 
-        view.apply {
-            txtElapsedTime = findViewById(R.id.txt_elapsed_time)
-            btnFetch = findViewById(R.id.btn_fetch_users)
-        }
+		view.apply {
+			txtElapsedTime = findViewById(R.id.txt_elapsed_time)
+			btnFetch = findViewById(R.id.btn_fetch_users)
+		}
 
-        btnFetch.setOnClickListener {
-            logThreadInfo("button callback")
+		btnFetch.setOnClickListener {
+			logThreadInfo("button callback")
 
-            val updateElapsedTimeJob = coroutineScope.launch {
-                updateElapsedTime()
-            }
+			val updateElapsedTimeJob = coroutineScope.launch {
+				updateElapsedTime()
+			}
 
-            coroutineScope.launch {
-                try {
-                    btnFetch.isEnabled = false
-                    fetchAndCacheUsersUseCase.fetchAndCacheUsers(userIds)
-                    updateElapsedTimeJob.cancel()
-                } catch (e: CancellationException) {
-                    updateElapsedTimeJob.cancelAndJoin()
-                    txtElapsedTime.text = ""
-                } finally {
-                    btnFetch.isEnabled = true
-                }
-            }
-        }
+			coroutineScope.launch {
+				try {
+					btnFetch.isEnabled = false
+					fetchAndCacheUsersUseCase.fetchAndCacheUsers(userIds)
+					updateElapsedTimeJob.cancel()
 
-        return view
-    }
+				} catch (e: CancellationException) {
+					updateElapsedTimeJob.cancelAndJoin()
+					logThreadInfo("coroutine cancelled: $e")
+					txtElapsedTime.text = ""
 
-    override fun onStop() {
-        logThreadInfo("onStop()")
-        super.onStop()
-        coroutineScope.coroutineContext.cancelChildren()
-    }
+				} finally {
+					btnFetch.isEnabled = true
+				}
+			}
+		}
+
+		return view
+	}
+
+	override fun onStop() {
+		logThreadInfo("onStop()")
+		super.onStop()
+		coroutineScope.coroutineContext.cancelChildren()
+	}
 
 
-    private suspend fun updateElapsedTime() {
-        val startTimeNano = System.nanoTime()
-        while (true) {
-            delay(100)
-            val elapsedTimeNano = System.nanoTime() - startTimeNano
-            val elapsedTimeMs = elapsedTimeNano / 1000000
-            txtElapsedTime.text = "Elapsed time: $elapsedTimeMs ms"
-        }
-    }
+	private suspend fun updateElapsedTime() {
+		val startTimeNano = System.nanoTime()
+		while (true) {
+			delay(100)
+			val elapsedTimeNano = System.nanoTime() - startTimeNano
+			val elapsedTimeMs = elapsedTimeNano / 1000000
+			txtElapsedTime.text = "Elapsed time: $elapsedTimeMs ms"
+		}
+	}
 
-    companion object {
-        fun newInstance(): Fragment {
-            return Exercise8Fragment()
-        }
-    }
+	companion object {
+		fun newInstance(): Fragment {
+			return Exercise8Fragment()
+		}
+	}
 }

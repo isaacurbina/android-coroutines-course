@@ -6,8 +6,8 @@ import kotlinx.coroutines.withContext
 
 class GetUserEndpoint {
 
-    suspend fun getUser(userId: String): User = withContext(Dispatchers.IO) {
-        delay(500)
-        return@withContext User(userId, "user ${userId}")
-    }
+	suspend fun getUser(userId: String): User = withContext(Dispatchers.IO) {
+		delay(1500)
+		return@withContext User(userId, "user ${userId}")
+	}
 }
