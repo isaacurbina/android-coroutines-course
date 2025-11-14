@@ -56,6 +56,4 @@ class Exercise7Test {
 			println("test done")
 		}
 	}
-
-
 }
