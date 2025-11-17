@@ -24,7 +24,7 @@ class Exercise8SolutionFragment : BaseFragment() {
     private lateinit var btnFetch: Button
     private lateinit var txtElapsedTime: TextView
 
-    private val userIds = listOf<String>("bmq81", "gfn12", "gla34")
+    private val userIds = listOf("bmq81", "gfn12", "gla34")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,11 +51,15 @@ class Exercise8SolutionFragment : BaseFragment() {
                     btnFetch.isEnabled = false
                     fetchAndCacheUsersUseCase.fetchAndCacheUsers(userIds)
                     updateElapsedTimeJob.cancel()
+
                 } catch (e: CancellationException) {
-                    withContext(NonCancellable) {
+					logThreadInfo("fetchAndCacheUsersUseCase was cancelled: $e")
+					txtElapsedTime.text = ""
+					withContext(NonCancellable) {
                         updateElapsedTimeJob.cancelAndJoin()
                         txtElapsedTime.text = ""
                     }
+
                 } finally {
                     withContext(NonCancellable) {
                         btnFetch.isEnabled = true
@@ -69,8 +73,8 @@ class Exercise8SolutionFragment : BaseFragment() {
 
     override fun onStop() {
         logThreadInfo("onStop()")
-        super.onStop()
         coroutineScope.coroutineContext.cancelChildren()
+		super.onStop()
     }
 
 
