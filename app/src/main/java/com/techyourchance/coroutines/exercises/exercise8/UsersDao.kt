@@ -9,7 +9,7 @@ class UsersDao {
 
 	suspend fun upsertUserInfo(user: User) = withContext(Dispatchers.IO) {
 		logThreadInfo("upsertUserInfo($user)")
-		delay(1500)
+		delay(1000)
 		logThreadInfo("upsertUserInfo -> done!)")
 	}
 }
