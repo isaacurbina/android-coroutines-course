@@ -9,18 +9,18 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.withContext
 
 class FetchAndCacheUsersUseCaseSolutionExercise9(
-        private val getUserEndpoint: GetUserEndpoint,
-        private val usersDao: UsersDao
+	private val getUserEndpoint: GetUserEndpoint,
+	private val usersDao: UsersDao
 ) {
 
-    suspend fun fetchAndCacheUsers(userIds: List<String>): List<User> = withContext(Dispatchers.Default) {
-        userIds.map { userId ->
-            async {
-                val user = getUserEndpoint.getUser(userId)
-                usersDao.upsertUserInfo(user)
-                user
-            }
-        }.awaitAll()
-    }
-
+	suspend fun fetchAndCacheUsers(userIds: List<String>): List<User> =
+		withContext(Dispatchers.Default) {
+			userIds.map { userId ->
+				async {
+					val user = getUserEndpoint.getUser(userId)
+					usersDao.upsertUserInfo(user)
+					user
+				}
+			}.awaitAll()
+		}
 }
