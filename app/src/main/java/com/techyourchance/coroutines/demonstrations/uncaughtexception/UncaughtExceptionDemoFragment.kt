@@ -12,112 +12,122 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.techyourchance.coroutines.R
 import com.techyourchance.coroutines.common.BaseFragment
-import com.techyourchance.coroutines.demonstrations.uncaughtexception.LoginUseCaseUncaughtException.*
+import com.techyourchance.coroutines.common.ThreadInfoLogger.logThreadInfo
+import com.techyourchance.coroutines.demonstrations.uncaughtexception.LoginUseCaseUncaughtException.Result
 import com.techyourchance.coroutines.home.ScreenReachableFromHome
-import kotlinx.coroutines.*
-import java.lang.Exception
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.launch
 
 class UncaughtExceptionDemoFragment : BaseFragment() {
 
-    private val coroutineScope = CoroutineScope(Dispatchers.Main.immediate)
+	private val coroutineScope = CoroutineScope(Dispatchers.Main.immediate)
 
-    override val screenTitle get() = ScreenReachableFromHome.UNCAUGHT_EXCEPTION_DEMO.description
+	override val screenTitle get() = ScreenReachableFromHome.UNCAUGHT_EXCEPTION_DEMO.description
 
-    private lateinit var loginUseCase: LoginUseCaseUncaughtException
+	private lateinit var loginUseCase: LoginUseCaseUncaughtException
 
-    private lateinit var edtUsername: EditText
-    private lateinit var edtPassword: EditText
-    private lateinit var btnLogin: Button
+	private lateinit var edtUsername: EditText
+	private lateinit var edtPassword: EditText
+	private lateinit var btnLogin: Button
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        loginUseCase = compositionRoot.loginUseCaseUncaughtException
-    }
+	override fun onCreate(savedInstanceState: Bundle?) {
+		super.onCreate(savedInstanceState)
+		loginUseCase = compositionRoot.loginUseCaseUncaughtException
+	}
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_login, container, false)
+	override fun onCreateView(
+		inflater: LayoutInflater,
+		container: ViewGroup?,
+		savedInstanceState: Bundle?
+	): View? {
+		val view = inflater.inflate(R.layout.fragment_login, container, false)
 
-        view.apply {
-            edtUsername = findViewById(R.id.edt_username)
-            edtPassword = findViewById(R.id.edt_password)
-            btnLogin = findViewById(R.id.btn_login)
-        }
+		view.apply {
+			edtUsername = findViewById(R.id.edt_username)
+			edtPassword = findViewById(R.id.edt_password)
+			btnLogin = findViewById(R.id.btn_login)
+		}
 
-        refreshUiState()
+		refreshUiState()
 
-        edtUsername.addTextChangedListener(object: TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+		edtUsername.addTextChangedListener(object : TextWatcher {
+			override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                refreshUiState()
-            }
+			override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+				refreshUiState()
+			}
 
-            override fun afterTextChanged(s: Editable?) {}
-        })
+			override fun afterTextChanged(s: Editable?) {}
+		})
 
-        edtPassword.addTextChangedListener(object: TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+		edtPassword.addTextChangedListener(object : TextWatcher {
+			override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                refreshUiState()
-            }
+			override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+				refreshUiState()
+			}
 
-            override fun afterTextChanged(s: Editable?) {}
-        })
+			override fun afterTextChanged(s: Editable?) {}
+		})
 
-        btnLogin.setOnClickListener {
-                coroutineScope.launch {
-                    try {
-                        btnLogin.isEnabled = false
-                        val result = loginUseCase.logIn(getUsername(), getPassword())
-                        when (result) {
-                            is Result.Success -> onUserLoggedIn(result.user)
-                            is Result.InvalidCredentials -> onInvalidCredentials()
-                            is Result.GeneralError -> onGeneralError()
-                        }
-                    } finally {
-                        refreshUiState()
-                    }
-                }
-        }
+		btnLogin.setOnClickListener {
+			coroutineScope.launch {
+				try {
+					btnLogin.isEnabled = false
+					when (val result = loginUseCase.logIn(getUsername(), getPassword())) {
+						is Result.Success -> onUserLoggedIn(result.user)
+						is Result.InvalidCredentials -> onInvalidCredentials()
+						is Result.GeneralError -> onGeneralError()
+					}
 
-        return view
-    }
+				} catch (e: RuntimeException) {
+					logThreadInfo("Caught exception: ${e.localizedMessage}")
 
-    override fun onStop() {
-        super.onStop()
-        coroutineScope.coroutineContext.cancelChildren()
-    }
+				} finally {
+					refreshUiState()
+				}
+			}
+		}
 
-    private fun refreshUiState() {
-        val username = getUsername()
-        val password = getPassword()
-        btnLogin.isEnabled = username.isNotEmpty() && password.isNotEmpty()
-    }
+		return view
+	}
 
-    private fun getUsername(): String {
-        return edtUsername.text.toString()
-    }
+	override fun onStop() {
+		super.onStop()
+		coroutineScope.coroutineContext.cancelChildren()
+	}
 
-    private fun getPassword(): String {
-        return edtPassword.text.toString()
-    }
+	private fun refreshUiState() {
+		val username = getUsername()
+		val password = getPassword()
+		btnLogin.isEnabled = username.isNotEmpty() && password.isNotEmpty()
+	}
 
-    private fun onUserLoggedIn(user: LoggedInUser) {
-        Toast.makeText(requireContext(), "successful login", Toast.LENGTH_SHORT).show()
-    }
+	private fun getUsername(): String {
+		return edtUsername.text.toString()
+	}
 
-    private fun onInvalidCredentials() {
-        Toast.makeText(requireContext(), "invalid credentials", Toast.LENGTH_SHORT).show()
-    }
+	private fun getPassword(): String {
+		return edtPassword.text.toString()
+	}
 
-    private fun onGeneralError() {
-        Toast.makeText(requireContext(), "error", Toast.LENGTH_SHORT).show()
-    }
+	private fun onUserLoggedIn(@Suppress("unused") user: LoggedInUser) {
+		Toast.makeText(requireContext(), "successful login", Toast.LENGTH_SHORT).show()
+	}
 
-    companion object {
-        fun newInstance(): Fragment {
-            return UncaughtExceptionDemoFragment()
-        }
-    }
+	private fun onInvalidCredentials() {
+		Toast.makeText(requireContext(), "invalid credentials", Toast.LENGTH_SHORT).show()
+	}
+
+	private fun onGeneralError() {
+		Toast.makeText(requireContext(), "error", Toast.LENGTH_SHORT).show()
+	}
+
+	companion object {
+		fun newInstance(): Fragment {
+			return UncaughtExceptionDemoFragment()
+		}
+	}
 }
