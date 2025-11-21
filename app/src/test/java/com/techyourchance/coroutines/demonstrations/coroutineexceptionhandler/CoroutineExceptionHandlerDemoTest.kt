@@ -59,6 +59,4 @@ class CoroutineExceptionHandlerDemoTest {
 		Thread.sleep(100)
 		println("test completed")
 	}
-
-
 }
