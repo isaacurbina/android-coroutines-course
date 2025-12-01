@@ -66,6 +66,7 @@ class HomeFragment : BaseFragment(), HomeArrayAdapter.Listener {
 			ScreenReachableFromHome.EXERCISE_9_SOLUTION -> screensNavigator.toExercise9Solution()
 			ScreenReachableFromHome.UNCAUGHT_EXCEPTION_DEMO -> screensNavigator.toUncaughtException()
 			ScreenReachableFromHome.EXERCISE_10 -> screensNavigator.toExercise10()
+			ScreenReachableFromHome.EXERCISE_10_SOLUTION -> screensNavigator.toExercise10Solution()
 		}
 	}
 
