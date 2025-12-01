@@ -27,6 +27,7 @@ import com.techyourchance.coroutines.exercises.exercise8.Exercise8Fragment
 import com.techyourchance.coroutines.exercises.exercise9.Exercise9Fragment
 import com.techyourchance.coroutines.home.HomeFragment
 import com.techyourchance.coroutines.solutions.exercise1.Exercise1SolutionFragment
+import com.techyourchance.coroutines.solutions.exercise10.Exercise10SolutionFragment
 import com.techyourchance.coroutines.solutions.exercise2.Exercise2SolutionFragment
 import com.techyourchance.coroutines.solutions.exercise3.Exercise3SolutionFragment
 import com.techyourchance.coroutines.solutions.exercise4.Exercise4SolutionFragment
@@ -191,4 +192,7 @@ class ScreensNavigator(private val fragNavController: FragNavController) {
 		fragNavController.pushFragment(Exercise10Fragment.newInstance())
 	}
 
+	fun toExercise10Solution() {
+		fragNavController.pushFragment(Exercise10SolutionFragment.newInstance())
+	}
 }

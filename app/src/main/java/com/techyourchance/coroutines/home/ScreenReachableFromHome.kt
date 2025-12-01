@@ -31,4 +31,5 @@ enum class ScreenReachableFromHome(val description: String) {
 	EXERCISE_9_SOLUTION("Exercise 9 Solution"),
 	UNCAUGHT_EXCEPTION_DEMO("Uncaught Exception"),
 	EXERCISE_10("Exercise 10"),
+	EXERCISE_10_SOLUTION("Exercise 10 Solution")
 }
