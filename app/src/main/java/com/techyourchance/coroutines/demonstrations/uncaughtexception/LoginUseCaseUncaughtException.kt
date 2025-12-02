@@ -15,19 +15,23 @@ class LoginUseCaseUncaughtException(
 	}
 
 	suspend fun logIn(username: String, password: String): Result = withContext(Dispatchers.IO) {
-		val response = loginEndpointUncaughtException.logIn(username, password)
+		try {
+			val response = loginEndpointUncaughtException.logIn(username, password)
 
-		return@withContext when (response) {
-			is LoginEndpointUncaughtException.Response.Success -> {
-				userStateManager.userLoggedIn(response.user)
-				Result.Success(response.user)
-			}
-
-			is LoginEndpointUncaughtException.Response.Failure ->
-				when (response.statusCode) {
-					401 -> Result.InvalidCredentials
-					else -> Result.GeneralError
+			return@withContext when (response) {
+				is LoginEndpointUncaughtException.Response.Success -> {
+					userStateManager.userLoggedIn(response.user)
+					Result.Success(response.user)
 				}
+
+				is LoginEndpointUncaughtException.Response.Failure ->
+					when (response.statusCode) {
+						401 -> Result.InvalidCredentials
+						else -> Result.GeneralError
+					}
+			}
+		} catch (e: LoginEndpointUncaughtException.RequestTimeoutException) {
+			return@withContext Result.GeneralError
 		}
 	}
 }
